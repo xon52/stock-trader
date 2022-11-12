@@ -8,6 +8,7 @@
         <RouterView />
       </v-container>
     </v-main>
+    <NoticeVue />
   </v-app>
 </template>
 
@@ -16,6 +17,7 @@ import { RouterView } from "vue-router";
 import TopBarVue from "@/components/layout/TopBar.vue";
 import NavPanelVue from "@/components/layout/NavPanel.vue";
 import { darkTheme } from "@/store/appStore";
+import NoticeVue from "@/components/global/Notice.vue";
 </script>
 
 <style scoped></style>

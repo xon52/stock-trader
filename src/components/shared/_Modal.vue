@@ -5,7 +5,7 @@
     class="align-center justify-center"
     @after-leave="onClose"
   >
-    <div class="overflow-auto" style="max-width: 75vw; max-height: 75vh">
+    <div class="overflow-auto" style="max-width: 80vw; max-height: 80vh;">
       <slot></slot>
     </div>
   </v-overlay>

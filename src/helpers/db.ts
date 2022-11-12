@@ -1,5 +1,12 @@
 import Dexie, { Table } from "dexie";
 
+export type Ticker = {
+  symbol: string;
+  modified: Date;
+  overview?: Record<string, string>;
+  sample?: Tick[];
+};
+
 interface KnownTicker {
   id: string;
   data?: Object;
@@ -17,11 +24,13 @@ export interface Tick {
 }
 
 class STDB extends Dexie {
+  tickers: Table<Ticker>;
   knownTickers!: Table<KnownTicker>;
   ticks!: Table<Tick>;
   constructor() {
     super("STDB");
     this.version(1).stores({
+      tickers: "symbol, &timestamp",
       ticks: "++id, timestamp, ticker",
       knownTickers: "id",
     });
@@ -29,6 +38,21 @@ class STDB extends Dexie {
 }
 
 const db = new STDB();
+
+export const tickerDB = {
+  add: (ticker: Ticker) => db.tickers.put(ticker, ticker.symbol),
+  bulkAdd: (tickers: Ticker[]) =>
+    db.tickers.bulkPut(
+      tickers,
+      tickers.map((t) => t.symbol)
+    ),
+  delete: (ticker: string) =>
+    db.tickers.where("symbol").equalsIgnoreCase(ticker).delete(),
+  get: (ticker: string) =>
+    db.tickers.where("symbol").equalsIgnoreCase(ticker).first(),
+  getAll: () => db.tickers.orderBy("modified").toArray(),
+  clear: () => db.knownTickers.clear(),
+};
 
 export const tickDB = {
   add: async (tick: Tick) => await db.ticks.add(tick),

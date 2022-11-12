@@ -1,3 +1,5 @@
+import { Tick } from "./db";
+
 // RapidAPI
 const RapidAPIKey = "557544e047mshccaac272e5df2f6p1a4052jsn6c70132ee8a0";
 const RapidAPIHost = "alpha-vantage.p.rapidapi.com";
@@ -46,12 +48,25 @@ export const AlphaVantageIntraday = async (
   adjusted: boolean = true
 ) => {
   let _url = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${ticker}&interval=${interval}min&adjusted=${adjusted}&apikey=${AlphaVantageAPIKey}`;
-  console.log(_url);
   if (outputsize) _url += `&outputsize=${outputsize}`;
   if (datatype) _url += `&datatype=${datatype}`;
   const response = await fetch(_url, AlphaVantageAPIOptions);
-  const parsed = await response.text();
-  return parsed;
+  const parsed = await response.json();
+  const data = parsed[`Time Series (${interval}min)`];
+  const dataKeys = Object.keys(data);
+  const ticks: Tick[] = [];
+  dataKeys.forEach((key) => {
+    ticks.push({
+      ticker,
+      timestamp: new Date(key),
+      open: data[key]["1. open"],
+      high: data[key]["2. high"],
+      low: data[key]["3. low"],
+      close: data[key]["4. close"],
+      volume: data[key]["5. volume"],
+    });
+  });
+  return ticks;
 };
 
 /**
